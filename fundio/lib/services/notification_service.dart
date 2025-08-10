@@ -185,6 +185,45 @@ class NotificationService {
   Future<void> unsubscribeFromAccount(String accountId) async {
     await unsubscribeFromTopic('account_$accountId');
   }
+
+  // Show a custom notification
+  Future<void> showNotification({
+    required int id,
+    required String title,
+    required String body,
+    String? payload,
+  }) async {
+    await _localNotifications.show(
+      id,
+      title,
+      body,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'high_importance_channel',
+          'High Importance Notifications',
+          channelDescription: 'This channel is used for important notifications.',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      payload: payload,
+    );
+  }
+
+  // Cancel a specific notification
+  Future<void> cancelNotification(int id) async {
+    await _localNotifications.cancel(id);
+  }
+
+  // Cancel all notifications
+  Future<void> cancelAllNotifications() async {
+    await _localNotifications.cancelAll();
+  }
 }
 
 // Background message handler must be a top-level function

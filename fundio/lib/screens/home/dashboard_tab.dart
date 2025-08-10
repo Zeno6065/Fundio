@@ -70,7 +70,7 @@ class _DashboardTabState extends State<DashboardTab> {
   Widget build(BuildContext context) {
     final accountProvider = Provider.of<AccountProvider>(context);
     final appProvider = Provider.of<AppProvider>(context);
-    final accounts = accountProvider.userAccounts;
+    final accounts = accountProvider.accounts;
     final user = appProvider.user;
 
     return RefreshIndicator(

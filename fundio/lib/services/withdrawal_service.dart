@@ -292,4 +292,38 @@ class WithdrawalService {
 
     return total;
   }
+
+  // Get total completed withdrawals for an account
+  Future<double> getTotalCompletedWithdrawals(String accountId) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw Exception('User not authenticated');
+    }
+
+    // Verify account exists and user is a member
+    final accountDoc = await _firestore.collection('accounts').doc(accountId).get();
+    if (!accountDoc.exists) {
+      throw Exception('Account not found');
+    }
+
+    final members = List<String>.from(accountDoc.data()?['members'] ?? []);
+    if (!members.contains(user.uid)) {
+      throw Exception('You are not a member of this account');
+    }
+
+    final querySnapshot = await _firestore
+        .collection('withdrawals')
+        .where('accountId', isEqualTo: accountId)
+        .where('status', isEqualTo: 'completed')
+        .get();
+
+    double total = 0;
+    for (final doc in querySnapshot.docs) {
+      final withdrawal = WithdrawalModel.fromJson(doc.data(), doc.id);
+      // Note: In a real app, you would need to handle currency conversion
+      total += withdrawal.amount;
+    }
+
+    return total;
+  }
 }

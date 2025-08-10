@@ -56,6 +56,9 @@ dependencies:
   uuid: ^4.3.3
   shared_preferences: ^2.2.2
   url_launcher: ^6.2.5
+  
+  # Notifications
+  flutter_local_notifications: ^17.2.2
 
 dev_dependencies:
   flutter_test:

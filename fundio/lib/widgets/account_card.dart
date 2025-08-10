@@ -5,7 +5,7 @@ import '../providers/deposit_provider.dart';
 import '../constants/app_theme.dart';
 import '../utils/currency_util.dart';
 
-class AccountCard extends StatelessWidget {
+class AccountCard extends StatefulWidget {
   final AccountModel account;
   final VoidCallback onTap;
 
@@ -16,17 +16,46 @@ class AccountCard extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final depositProvider = Provider.of<DepositProvider>(context);
-    
-    // Calculate progress percentage
-    double progressPercentage = 0.0;
-    if (account.targetAmount > 0) {
-      progressPercentage = depositProvider.getTotalApprovedDeposits(account.id) / account.targetAmount;
-      // Cap at 100%
-      progressPercentage = progressPercentage > 1.0 ? 1.0 : progressPercentage;
-    }
+  State<AccountCard> createState() => _AccountCardState();
+}
 
+class _AccountCardState extends State<AccountCard> {
+  double _progressPercentage = 0.0;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProgressData();
+  }
+
+  Future<void> _loadProgressData() async {
+    try {
+      final depositProvider = Provider.of<DepositProvider>(context, listen: false);
+      final totalDeposits = await depositProvider.getTotalApprovedDeposits(widget.account.id);
+      
+      if (mounted) {
+        setState(() {
+          if (widget.account.targetAmount > 0) {
+            _progressPercentage = totalDeposits / widget.account.targetAmount;
+            // Cap at 100%
+            _progressPercentage = _progressPercentage > 1.0 ? 1.0 : _progressPercentage;
+          }
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _progressPercentage = 0.0;
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -50,7 +79,7 @@ class AccountCard extends StatelessWidget {
                     ),
                     child: Center(
                       child: Icon(
-                        _getIconForAccountType(account.type),
+                        _getIconForAccountType(widget.account.withdrawalRules['type'] ?? 'savings'),
                         color: AppTheme.primaryColor,
                       ),
                     ),
@@ -97,7 +126,7 @@ class AccountCard extends StatelessWidget {
               
               // Members count
               Text(
-                '${account.memberCount} members',
+                '${widget.account.members.length} members',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
@@ -109,7 +138,7 @@ class AccountCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
-                  value: progressPercentage,
+                  value: _isLoading ? 0.0 : _progressPercentage,
                   backgroundColor: Colors.grey[200],
                   valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
                   minHeight: 8,
@@ -122,17 +151,21 @@ class AccountCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    CurrencyUtil.format(
-                      depositProvider.getTotalApprovedDeposits(account.id),
-                      account.currency,
-                    ),
+                    _isLoading 
+                      ? 'Loading...'
+                      : CurrencyUtil.format(
+                          _progressPercentage * widget.account.targetAmount,
+                          widget.account.currency,
+                        ),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
-                    '${(progressPercentage * 100).toStringAsFixed(1)}%',
+                    _isLoading 
+                      ? '0.0%'
+                      : '${(_progressPercentage * 100).toStringAsFixed(1)}%',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],

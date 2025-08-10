@@ -33,17 +33,17 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     // Check authentication status after animation completes
     Future.delayed(const Duration(seconds: 2), () {
       final appProvider = Provider.of<AppProvider>(context, listen: false);
-      appProvider.checkAuthStatus().then((_) {
-        if (appProvider.isAuthenticated) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
-          );
-        } else {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const LoginScreen()),
-          );
-        }
-      });
+      // The AppProvider automatically handles auth state changes
+      // We just need to check the current status
+      if (appProvider.isAuthenticated) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
     });
   }
 
