@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'app_constants.dart';
 
 class AppTheme {
+  // Expose primary color for easy access in UI code
+  static const Color primaryColor = AppConstants.primaryColor;
+
   // Light theme configuration
   static ThemeData get lightTheme {
     return ThemeData(
@@ -78,7 +81,7 @@ class AppTheme {
         ),
         contentPadding: const EdgeInsets.all(AppConstants.mediumPadding),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.cardRadius),

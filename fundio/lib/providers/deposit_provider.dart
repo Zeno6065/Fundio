@@ -133,6 +133,11 @@ class DepositProvider extends ChangeNotifier {
     }
   }
 
+  // Expose fetch for UI
+  Future<List<DepositModel>> getAccountDeposits(String accountId) {
+    return _depositService.getAccountDeposits(accountId);
+  }
+
   // Clear error
   void clearError() {
     _errorMessage = null;

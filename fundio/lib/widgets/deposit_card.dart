@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../constants/app_theme.dart';
-import '../models/deposit.dart';
+import '../models/deposit_model.dart';
 import '../providers/app_provider.dart';
 import '../providers/deposit_provider.dart';
 

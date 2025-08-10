@@ -247,7 +247,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Positioned(
               top: 16,
               right: 16,
-              child: ThemeToggleButton(),
+              child: const ThemeToggleButton(),
             ),
           ],
         ),

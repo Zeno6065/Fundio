@@ -95,4 +95,40 @@ class Validators {
     
     return null;
   }
+
+  // Convenience alias to match older usage: Validators.required('msg')
+  static String? required(String message) {
+    return (String? value) {
+      if (value == null || value.isEmpty) return message;
+      return null;
+    }(null);
+  }
+
+  // Compose multiple validators
+  static FormFieldValidator<String> compose(List<FormFieldValidator<String>> validators) {
+    return (value) {
+      for (final validator in validators) {
+        final result = validator(value);
+        if (result != null) return result;
+      }
+      return null;
+    };
+  }
+
+  // Number validator
+  static FormFieldValidator<String> number(String message) {
+    return (value) {
+      if (value == null || value.isEmpty) return message;
+      return double.tryParse(value) == null ? message : null;
+    };
+  }
+
+  // Minimum value validator
+  static FormFieldValidator<String> min(num minValue, String message) {
+    return (value) {
+      final parsed = double.tryParse(value ?? '');
+      if (parsed == null || parsed < minValue) return message;
+      return null;
+    };
+  }
 }

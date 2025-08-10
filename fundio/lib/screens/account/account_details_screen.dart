@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../constants/app_theme.dart';
-import '../../models/account.dart';
-import '../../models/deposit.dart';
+import '../../models/account_model.dart';
+import '../../models/deposit_model.dart';
 import '../../providers/account_provider.dart';
 import '../../providers/deposit_provider.dart';
 import '../../providers/withdrawal_provider.dart';
@@ -47,8 +47,8 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
       final depositProvider = Provider.of<DepositProvider>(context, listen: false);
       final withdrawalProvider = Provider.of<WithdrawalProvider>(context, listen: false);
       
-      await depositProvider.loadDeposits(widget.account.id);
-      await withdrawalProvider.loadWithdrawals(widget.account.id);
+      await depositProvider.loadAccountDeposits(widget.account.id);
+      await withdrawalProvider.loadAccountWithdrawals(widget.account.id);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -95,8 +95,8 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
     );
 
     // Calculate progress percentage
-    final double progressPercentage = currentAccount.goalAmount > 0
-        ? (depositProvider.getTotalApprovedDeposits(currentAccount.id) / currentAccount.goalAmount).clamp(0.0, 1.0)
+    final double progressPercentage = currentAccount.targetAmount > 0
+        ? ((await depositProvider.getTotalApprovedDeposits(currentAccount.id)) / currentAccount.targetAmount).clamp(0.0, 1.0)
         : 0.0;
 
     return Scaffold(
@@ -272,112 +272,128 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
   }
 
   Widget _buildDepositsTab(DepositProvider depositProvider, String accountId) {
-    final deposits = depositProvider.getDepositsByAccountId(accountId);
-    
-    if (deposits.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.account_balance_wallet_outlined,
-              size: 64,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'No deposits yet',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey,
+    return Expanded(
+      child: FutureBuilder<List<DepositModel>>(
+        future: depositProvider.getAccountDeposits(accountId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final deposits = snapshot.data ?? [];
+          if (deposits.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.account_balance_wallet_outlined,
+                    size: 64,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No deposits yet',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Make your first deposit to get started',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: _navigateToCreateDeposit,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Make Deposit'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Make your first deposit to get started',
-              style: TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: _navigateToCreateDeposit,
-              icon: const Icon(Icons.add),
-              label: const Text('Make Deposit'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryColor,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-    
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: deposits.length,
-      itemBuilder: (context, index) {
-        final deposit = deposits[index];
-        return DepositCard(deposit: deposit);
-      },
+            );
+          }
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: deposits.length,
+            itemBuilder: (context, index) {
+              final deposit = deposits[index];
+              return DepositCard(deposit: deposit);
+            },
+          );
+        },
+      ),
     );
   }
 
   Widget _buildWithdrawalsTab(WithdrawalProvider withdrawalProvider, String accountId) {
-    final withdrawals = withdrawalProvider.getWithdrawalsByAccountId(accountId);
-    
-    if (withdrawals.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.money_off_outlined,
-              size: 64,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'No withdrawals yet',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey,
+    return Expanded(
+      child: FutureBuilder<List<WithdrawalModel>>(
+        future: withdrawalProvider.getAccountWithdrawals(accountId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final withdrawals = snapshot.data ?? [];
+          if (withdrawals.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.money_off_outlined,
+                    size: 64,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No withdrawals yet',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Create a withdrawal request when needed',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: _navigateToCreateWithdrawal,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Request Withdrawal'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Create a withdrawal request when needed',
-              style: TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: _navigateToCreateWithdrawal,
-              icon: const Icon(Icons.add),
-              label: const Text('Request Withdrawal'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryColor,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-    
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: withdrawals.length,
-      itemBuilder: (context, index) {
-        final withdrawal = withdrawals[index];
-        return WithdrawalCard(withdrawal: withdrawal);
-      },
+            );
+          }
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: withdrawals.length,
+            itemBuilder: (context, index) {
+              final withdrawal = withdrawals[index];
+              return WithdrawalCard(withdrawal: withdrawal);
+            },
+          );
+        },
+      ),
     );
   }
 
