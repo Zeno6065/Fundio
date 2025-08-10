@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../constants/app_theme.dart';
-import '../../models/account.dart';
+import '../../models/account_model.dart';
 import '../../providers/deposit_provider.dart';
 import '../../utils/validators.dart';
 import '../../widgets/theme_toggle_button.dart';
 
 class CreateDepositScreen extends StatefulWidget {
-  final Account account;
+  final AccountModel account;
 
   const CreateDepositScreen({Key? key, required this.account}) : super(key: key);
 

@@ -101,8 +101,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.black,
-        actions: [
-          ThemeToggleButton(color: Colors.black),
+        actions: const [
+          ThemeToggleButton(iconColor: Colors.black),
         ],
       ),
       body: SafeArea(

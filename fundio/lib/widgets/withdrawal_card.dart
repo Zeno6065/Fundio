@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../constants/app_theme.dart';
-import '../models/withdrawal.dart';
+import '../models/withdrawal_model.dart';
 import '../providers/app_provider.dart';
 import '../providers/withdrawal_provider.dart';
 

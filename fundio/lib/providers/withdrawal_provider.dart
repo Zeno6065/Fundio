@@ -141,6 +141,11 @@ class WithdrawalProvider extends ChangeNotifier {
     }
   }
 
+  // Expose fetch for UI
+  Future<List<WithdrawalModel>> getAccountWithdrawals(String accountId) {
+    return _withdrawalService.getAccountWithdrawals(accountId);
+  }
+
   // Clear error
   void clearError() {
     _errorMessage = null;

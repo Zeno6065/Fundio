@@ -64,8 +64,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.black,
-        actions: [
-          ThemeToggleButton(color: Colors.black),
+        actions: const [
+          ThemeToggleButton(iconColor: Colors.black),
         ],
       ),
       body: SafeArea(

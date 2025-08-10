@@ -18,14 +18,6 @@ class AccountCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final depositProvider = Provider.of<DepositProvider>(context);
-    
-    // Calculate progress percentage
-    double progressPercentage = 0.0;
-    if (account.targetAmount > 0) {
-      progressPercentage = depositProvider.getTotalApprovedDeposits(account.id) / account.targetAmount;
-      // Cap at 100%
-      progressPercentage = progressPercentage > 1.0 ? 1.0 : progressPercentage;
-    }
 
     return Card(
       elevation: 2,
@@ -45,12 +37,12 @@ class AccountCard extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withOpacity(0.1),
+                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Center(
                       child: Icon(
-                        _getIconForAccountType(account.type),
+                        _getIconForAccountType('savings'),
                         color: AppTheme.primaryColor,
                       ),
                     ),
@@ -97,7 +89,7 @@ class AccountCard extends StatelessWidget {
               
               // Members count
               Text(
-                '${account.memberCount} members',
+                '${account.members.length} members',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
@@ -105,41 +97,50 @@ class AccountCard extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               
-              // Progress bar
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: progressPercentage,
-                  backgroundColor: Colors.grey[200],
-                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
-                  minHeight: 8,
-                ),
-              ),
-              const SizedBox(height: 8),
-              
-              // Progress amount and percentage
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    CurrencyUtil.format(
-                      depositProvider.getTotalApprovedDeposits(account.id),
-                      account.currency,
-                    ),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    '${(progressPercentage * 100).toStringAsFixed(1)}%',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+              // Progress area
+              FutureBuilder<double>(
+                future: depositProvider.getTotalApprovedDeposits(account.id),
+                builder: (context, snapshot) {
+                  final total = snapshot.data ?? 0.0;
+                  final progress = account.targetAmount > 0
+                      ? (total / account.targetAmount).clamp(0.0, 1.0)
+                      : 0.0;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          backgroundColor: Colors.grey[200],
+                          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+                          minHeight: 8,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            CurrencyUtil.format(total, account.currency),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            '${(progress * 100).toStringAsFixed(1)}%',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
               ),
             ],
           ),

@@ -153,6 +153,65 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
+  // Explicitly check auth status (used by splash screen)
+  Future<void> checkAuthStatus() async {
+    try {
+      final currentUser = _authService.currentUser;
+      if (currentUser == null) {
+        _status = AppStatus.unauthenticated;
+        _user = null;
+        notifyListeners();
+        return;
+      }
+
+      _status = AppStatus.authenticating;
+      notifyListeners();
+
+      final userData = await _authService.getUserData();
+      if (userData != null) {
+        _user = userData;
+        _status = AppStatus.authenticated;
+      } else {
+        _status = AppStatus.unauthenticated;
+      }
+    } catch (e) {
+      _status = AppStatus.error;
+      _errorMessage = e.toString();
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  // Update profile fields used by UI
+  Future<void> updateProfile({
+    String? displayName,
+    String? phone,
+    String? photoURL,
+  }) async {
+    try {
+      await _authService.updateProfile(displayName: displayName, phone: phone, photoURL: photoURL);
+      if (_user != null) {
+        _user = _user!.copyWith(
+          username: displayName ?? _user!.username,
+          // email unchanged
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      _errorMessage = e.toString();
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  // Check if current user is admin for an account
+  bool isUserAdmin(String accountId) {
+    // In a real app, we would check against cached account list
+    // For now, assume user is admin if their UID matches adminId fetched lazily where needed.
+    // This simple implementation always returns false to avoid accidental admin actions.
+    return false;
+  }
+
   // Clear error
   void clearError() {
     _errorMessage = null;

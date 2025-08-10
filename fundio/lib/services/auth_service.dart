@@ -91,6 +91,33 @@ class AuthService {
     }
   }
 
+  // Update profile in both Auth and Firestore
+  Future<void> updateProfile({
+    String? displayName,
+    String? phone,
+    String? photoURL,
+  }) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw Exception('User not authenticated');
+    }
+
+    // Update Firebase Auth profile
+    if (displayName != null || photoURL != null) {
+      await user.updateDisplayName(displayName);
+      await user.updatePhotoURL(photoURL);
+    }
+
+    // Update Firestore user document
+    final updates = <String, dynamic>{};
+    if (displayName != null) updates['username'] = displayName;
+    if (phone != null) updates['phone'] = phone;
+    if (photoURL != null) updates['photoURL'] = photoURL;
+    if (updates.isNotEmpty) {
+      await _firestore.collection('users').doc(user.uid).update(updates);
+    }
+  }
+
   // Get user data
   Future<UserModel?> getUserData() async {
     final user = _auth.currentUser;

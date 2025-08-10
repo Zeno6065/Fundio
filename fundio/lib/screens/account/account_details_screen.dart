@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../constants/app_theme.dart';
-import '../../models/account.dart';
-import '../../models/deposit.dart';
+import '../../models/account_model.dart';
+import '../../models/deposit_model.dart';
 import '../../providers/account_provider.dart';
 import '../../providers/deposit_provider.dart';
 import '../../providers/withdrawal_provider.dart';
@@ -13,7 +13,7 @@ import 'create_deposit_screen.dart';
 import 'create_withdrawal_screen.dart';
 
 class AccountDetailsScreen extends StatefulWidget {
-  final Account account;
+  final AccountModel account;
 
   const AccountDetailsScreen({Key? key, required this.account}) : super(key: key);
 
@@ -47,8 +47,8 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
       final depositProvider = Provider.of<DepositProvider>(context, listen: false);
       final withdrawalProvider = Provider.of<WithdrawalProvider>(context, listen: false);
       
-      await depositProvider.loadDeposits(widget.account.id);
-      await withdrawalProvider.loadWithdrawals(widget.account.id);
+      await depositProvider.loadAccountDeposits(widget.account.id);
+      await withdrawalProvider.loadAccountWithdrawals(widget.account.id);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -94,11 +94,6 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
       orElse: () => widget.account,
     );
 
-    // Calculate progress percentage
-    final double progressPercentage = currentAccount.goalAmount > 0
-        ? (depositProvider.getTotalApprovedDeposits(currentAccount.id) / currentAccount.goalAmount).clamp(0.0, 1.0)
-        : 0.0;
-
     return Scaffold(
       appBar: AppBar(
         title: Text(currentAccount.name),
@@ -127,7 +122,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
                   // Account summary card
                   Container(
                     padding: const EdgeInsets.all(16),
-                    color: AppTheme.primaryColor.withOpacity(0.05),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.05),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -138,12 +133,12 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
                             Row(
                               children: [
                                 Icon(
-                                  _getAccountTypeIcon(currentAccount.type),
+                                  _getAccountTypeIcon('savings'),
                                   color: AppTheme.primaryColor,
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  currentAccount.type,
+                                  currentAccount.name,
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -152,7 +147,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
                               ],
                             ),
                             Text(
-                              'Goal: ZMW ${currentAccount.goalAmount.toStringAsFixed(2)}',
+                              'Goal: ZMW ${currentAccount.targetAmount.toStringAsFixed(2)}',
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -163,65 +158,68 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
                         const SizedBox(height: 16),
                         
                         // Progress bar
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text('Progress'),
-                                Text('${(progressPercentage * 100).toStringAsFixed(1)}%'),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            LinearProgressIndicator(
-                              value: progressPercentage,
-                              backgroundColor: Colors.grey[300],
-                              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
-                              minHeight: 10,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        
-                        // Amount collected and members
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
+                        FutureBuilder<double>(
+                          future: depositProvider.getTotalApprovedDeposits(currentAccount.id),
+                          builder: (context, snapshot) {
+                            final total = snapshot.data ?? 0.0;
+                            final progressPercentage = currentAccount.targetAmount > 0
+                                ? (total / currentAccount.targetAmount).clamp(0.0, 1.0)
+                                : 0.0;
+                            return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Collected',
-                                  style: TextStyle(color: Colors.grey),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text('Progress'),
+                                    Text('${(progressPercentage * 100).toStringAsFixed(1)}%'),
+                                  ],
                                 ),
-                                Text(
-                                  'ZMW ${depositProvider.getTotalApprovedDeposits(currentAccount.id).toStringAsFixed(2)}',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                const SizedBox(height: 8),
+                                LinearProgressIndicator(
+                                  value: progressPercentage,
+                                  backgroundColor: Colors.grey[300],
+                                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+                                  minHeight: 10,
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'Collected',
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                    Text(
+                                      'ZMW ${total.toStringAsFixed(2)}',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'Members',
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                    Text(
+                                      '${currentAccount.members.length}',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                const Text(
-                                  'Members',
-                                  style: TextStyle(color: Colors.grey),
-                                ),
-                                Text(
-                                  '${currentAccount.members.length}',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -272,112 +270,128 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
   }
 
   Widget _buildDepositsTab(DepositProvider depositProvider, String accountId) {
-    final deposits = depositProvider.getDepositsByAccountId(accountId);
-    
-    if (deposits.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.account_balance_wallet_outlined,
-              size: 64,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'No deposits yet',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey,
+    return Expanded(
+      child: FutureBuilder<List<DepositModel>>(
+        future: depositProvider.getAccountDeposits(accountId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final deposits = snapshot.data ?? [];
+          if (deposits.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.account_balance_wallet_outlined,
+                    size: 64,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No deposits yet',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Make your first deposit to get started',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: _navigateToCreateDeposit,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Make Deposit'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Make your first deposit to get started',
-              style: TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: _navigateToCreateDeposit,
-              icon: const Icon(Icons.add),
-              label: const Text('Make Deposit'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryColor,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-    
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: deposits.length,
-      itemBuilder: (context, index) {
-        final deposit = deposits[index];
-        return DepositCard(deposit: deposit);
-      },
+            );
+          }
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: deposits.length,
+            itemBuilder: (context, index) {
+              final deposit = deposits[index];
+              return DepositCard(deposit: deposit);
+            },
+          );
+        },
+      ),
     );
   }
 
   Widget _buildWithdrawalsTab(WithdrawalProvider withdrawalProvider, String accountId) {
-    final withdrawals = withdrawalProvider.getWithdrawalsByAccountId(accountId);
-    
-    if (withdrawals.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.money_off_outlined,
-              size: 64,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'No withdrawals yet',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey,
+    return Expanded(
+      child: FutureBuilder<List<WithdrawalModel>>(
+        future: withdrawalProvider.getAccountWithdrawals(accountId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final withdrawals = snapshot.data ?? [];
+          if (withdrawals.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.money_off_outlined,
+                    size: 64,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No withdrawals yet',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Create a withdrawal request when needed',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: _navigateToCreateWithdrawal,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Request Withdrawal'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Create a withdrawal request when needed',
-              style: TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: _navigateToCreateWithdrawal,
-              icon: const Icon(Icons.add),
-              label: const Text('Request Withdrawal'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryColor,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-    
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: withdrawals.length,
-      itemBuilder: (context, index) {
-        final withdrawal = withdrawals[index];
-        return WithdrawalCard(withdrawal: withdrawal);
-      },
+            );
+          }
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: withdrawals.length,
+            itemBuilder: (context, index) {
+              final withdrawal = withdrawals[index];
+              return WithdrawalCard(withdrawal: withdrawal);
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -399,7 +413,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withOpacity(0.1),
+                color: AppTheme.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -419,7 +433,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withOpacity(0.1),
+                color: AppTheme.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(

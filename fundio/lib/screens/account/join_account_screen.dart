@@ -63,8 +63,8 @@ class _JoinAccountScreenState extends State<JoinAccountScreen> {
       appBar: AppBar(
         title: const Text('Join Account'),
         backgroundColor: AppTheme.primaryColor,
-        actions: [
-          ThemeToggleButton(),
+        actions: const [
+          ThemeToggleButton(iconColor: Colors.white),
         ],
       ),
       body: _isLoading
