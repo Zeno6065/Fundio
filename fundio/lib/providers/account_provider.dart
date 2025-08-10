@@ -21,6 +21,7 @@ class AccountProvider extends ChangeNotifier {
   // Getters
   AccountStatus get status => _status;
   List<AccountModel> get accounts => _accounts;
+  List<AccountModel> get userAccounts => _accounts;
   AccountModel? get selectedAccount => _selectedAccount;
   String? get errorMessage => _errorMessage;
 
@@ -41,11 +42,8 @@ class AccountProvider extends ChangeNotifier {
   }
 
   // Select account
-  void selectAccount(String accountId) {
-    _selectedAccount = _accounts.firstWhere(
-      (account) => account.id == accountId,
-      orElse: () => _selectedAccount!,
-    );
+  void selectAccount(AccountModel account) {
+    _selectedAccount = account;
     notifyListeners();
   }
 

@@ -1,18 +1,15 @@
+import 'package:flutter/material.dart';
+
 class Validators {
   // Email validation
   static String? validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Email is required';
     }
-    
-    final emailRegex = RegExp(
-      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-    );
-    
+    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     if (!emailRegex.hasMatch(value)) {
       return 'Please enter a valid email address';
     }
-    
     return null;
   }
 
@@ -21,87 +18,49 @@ class Validators {
     if (value == null || value.isEmpty) {
       return 'Password is required';
     }
-    
     if (value.length < 6) {
       return 'Password must be at least 6 characters';
     }
-    
+    return null;
+  }
+
+  // Simple required validator used as `validator: Validators.validateRequired`
+  static String? validateRequired(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'This field is required';
+    }
     return null;
   }
 
   // Username validation
-  static String? validateUsername(String? value) {
+  static String? validateName(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Username is required';
+      return 'Name is required';
     }
-    
-    if (value.length < 3) {
-      return 'Username must be at least 3 characters';
+    if (value.trim().length < 3) {
+      return 'Name must be at least 3 characters';
     }
-    
     return null;
   }
 
-  // Required field validation
-  static String? validateRequired(String? value, String fieldName) {
+  // Phone validation (very simple)
+  static String? validatePhone(String? value) {
     if (value == null || value.isEmpty) {
-      return '$fieldName is required';
+      return 'Phone is required';
     }
-    
+    final digits = value.replaceAll(RegExp(r'[^0-9+]'), '');
+    if (digits.length < 7) {
+      return 'Enter a valid phone number';
+    }
     return null;
   }
 
-  // Amount validation
-  static String? validateAmount(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Amount is required';
-    }
-    
-    final amountRegex = RegExp(r'^\d+(\.\d{1,2})?$');
-    
-    if (!amountRegex.hasMatch(value)) {
-      return 'Please enter a valid amount';
-    }
-    
-    final amount = double.tryParse(value);
-    
-    if (amount == null || amount <= 0) {
-      return 'Amount must be greater than zero';
-    }
-    
-    return null;
-  }
-
-  // Date validation
-  static String? validateDate(DateTime? value) {
-    if (value == null) {
-      return 'Date is required';
-    }
-    
-    return null;
-  }
-
-  // Future date validation
-  static String? validateFutureDate(DateTime? value) {
-    if (value == null) {
-      return 'Date is required';
-    }
-    
-    final now = DateTime.now();
-    
-    if (value.isBefore(now)) {
-      return 'Date must be in the future';
-    }
-    
-    return null;
-  }
-
-  // Convenience alias to match older usage: Validators.required('msg')
-  static String? required(String message) {
-    return (String? value) {
+  // Convenience factory used as `Validators.required('Message')`
+  static FormFieldValidator<String> required(String message) {
+    return (value) {
       if (value == null || value.isEmpty) return message;
       return null;
-    }(null);
+    };
   }
 
   // Compose multiple validators

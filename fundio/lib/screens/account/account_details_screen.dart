@@ -13,7 +13,7 @@ import 'create_deposit_screen.dart';
 import 'create_withdrawal_screen.dart';
 
 class AccountDetailsScreen extends StatefulWidget {
-  final Account account;
+  final AccountModel account;
 
   const AccountDetailsScreen({Key? key, required this.account}) : super(key: key);
 
@@ -94,11 +94,6 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
       orElse: () => widget.account,
     );
 
-    // Calculate progress percentage
-    final double progressPercentage = currentAccount.targetAmount > 0
-        ? ((await depositProvider.getTotalApprovedDeposits(currentAccount.id)) / currentAccount.targetAmount).clamp(0.0, 1.0)
-        : 0.0;
-
     return Scaffold(
       appBar: AppBar(
         title: Text(currentAccount.name),
@@ -127,7 +122,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
                   // Account summary card
                   Container(
                     padding: const EdgeInsets.all(16),
-                    color: AppTheme.primaryColor.withOpacity(0.05),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.05),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -138,12 +133,12 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
                             Row(
                               children: [
                                 Icon(
-                                  _getAccountTypeIcon(currentAccount.type),
+                                  _getAccountTypeIcon('savings'),
                                   color: AppTheme.primaryColor,
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  currentAccount.type,
+                                  currentAccount.name,
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -152,7 +147,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
                               ],
                             ),
                             Text(
-                              'Goal: ZMW ${currentAccount.goalAmount.toStringAsFixed(2)}',
+                              'Goal: ZMW ${currentAccount.targetAmount.toStringAsFixed(2)}',
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -163,65 +158,68 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
                         const SizedBox(height: 16),
                         
                         // Progress bar
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text('Progress'),
-                                Text('${(progressPercentage * 100).toStringAsFixed(1)}%'),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            LinearProgressIndicator(
-                              value: progressPercentage,
-                              backgroundColor: Colors.grey[300],
-                              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
-                              minHeight: 10,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        
-                        // Amount collected and members
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
+                        FutureBuilder<double>(
+                          future: depositProvider.getTotalApprovedDeposits(currentAccount.id),
+                          builder: (context, snapshot) {
+                            final total = snapshot.data ?? 0.0;
+                            final progressPercentage = currentAccount.targetAmount > 0
+                                ? (total / currentAccount.targetAmount).clamp(0.0, 1.0)
+                                : 0.0;
+                            return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Collected',
-                                  style: TextStyle(color: Colors.grey),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text('Progress'),
+                                    Text('${(progressPercentage * 100).toStringAsFixed(1)}%'),
+                                  ],
                                 ),
-                                Text(
-                                  'ZMW ${depositProvider.getTotalApprovedDeposits(currentAccount.id).toStringAsFixed(2)}',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                const SizedBox(height: 8),
+                                LinearProgressIndicator(
+                                  value: progressPercentage,
+                                  backgroundColor: Colors.grey[300],
+                                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+                                  minHeight: 10,
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'Collected',
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                    Text(
+                                      'ZMW ${total.toStringAsFixed(2)}',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'Members',
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                    Text(
+                                      '${currentAccount.members.length}',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                const Text(
-                                  'Members',
-                                  style: TextStyle(color: Colors.grey),
-                                ),
-                                Text(
-                                  '${currentAccount.members.length}',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -415,7 +413,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withOpacity(0.1),
+                color: AppTheme.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -435,7 +433,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withOpacity(0.1),
+                color: AppTheme.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(

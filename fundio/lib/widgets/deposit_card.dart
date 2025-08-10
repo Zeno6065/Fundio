@@ -7,7 +7,7 @@ import '../providers/app_provider.dart';
 import '../providers/deposit_provider.dart';
 
 class DepositCard extends StatelessWidget {
-  final Deposit deposit;
+  final DepositModel deposit;
 
   const DepositCard({Key? key, required this.deposit}) : super(key: key);
 
@@ -144,18 +144,18 @@ class DepositCard extends StatelessWidget {
     
     switch (status.toLowerCase()) {
       case 'approved':
-        backgroundColor = Colors.green.withOpacity(0.1);
+        backgroundColor = Colors.green.withValues(alpha: 0.1);
         textColor = Colors.green;
         iconData = Icons.check_circle_outline;
         break;
       case 'rejected':
-        backgroundColor = Colors.red.withOpacity(0.1);
+        backgroundColor = Colors.red.withValues(alpha: 0.1);
         textColor = Colors.red;
         iconData = Icons.cancel_outlined;
         break;
       case 'pending':
       default:
-        backgroundColor = Colors.orange.withOpacity(0.1);
+        backgroundColor = Colors.orange.withValues(alpha: 0.1);
         textColor = Colors.orange;
         iconData = Icons.access_time;
         break;
@@ -208,7 +208,7 @@ class DepositCard extends StatelessWidget {
 
   Future<void> _rejectDeposit(BuildContext context, DepositProvider depositProvider) async {
     try {
-      await depositProvider.rejectDeposit(deposit.id);
+      await depositProvider.rejectDeposit(deposit.id, 'Rejected by admin');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Deposit rejected')),
