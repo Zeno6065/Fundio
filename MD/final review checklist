@@ -1,0 +1,79 @@
+# 📝 Fundio Final Review Checklist
+
+## 📌 How to Use
+- Tick each item when verified ✅
+- If an item fails, log the issue in `BUGFIX.md` before proceeding.
+- All items must be checked before building the release APK.
+
+---
+
+## 1️⃣ Functionality
+- [ ] **Authentication**
+  - [ ] Login, registration, and password reset work.
+  - [ ] Google Sign-In works (if implemented).
+  - [ ] Invalid credentials produce correct error messages.
+- [ ] **Deposit Accounts**
+  - [ ] Create account with chosen currency.
+  - [ ] Join account via invite link (admin approval required).
+  - [ ] Admin approval/rejection updates UI in real time.
+- [ ] **Deposits**
+  - [ ] Upload proof of deposit works.
+  - [ ] Amount conversion to Kwacha and other currencies works.
+  - [ ] Admin approval/rejection works and triggers notifications.
+- [ ] **Withdrawals**
+  - [ ] Request submission works.
+  - [ ] Special condition approval logic works.
+- [ ] **Profile**
+  - [ ] Update username works.
+  - [ ] Change password works.
+  - [ ] Default currency setting works.
+- [ ] **Theme Toggle**
+  - [ ] Switches between light and dark mode.
+  - [ ] Theme preference persists after restart.
+- [ ] **Notifications**
+  - [ ] Local notifications work.
+  - [ ] Push notifications (FCM) work.
+
+---
+
+## 2️⃣ UI/UX
+- [ ] AppBar design consistent across all screens.
+- [ ] Text, buttons, and icons are readable and aligned.
+- [ ] Consistent spacing and padding throughout the app.
+- [ ] All images and icons load correctly.
+- [ ] Currency values display with correct symbols and formatting.
+- [ ] Works correctly in both portrait and landscape modes.
+- [ ] Responsive layout across small, medium, and large screen sizes.
+
+---
+
+## 3️⃣ Performance
+- [ ] App launches in under 3 seconds on mid-range Android devices.
+- [ ] Smooth scrolling in all list views.
+- [ ] No visible UI lag during navigation.
+- [ ] Memory usage stable during heavy use.
+- [ ] Offline mode handles gracefully with appropriate messages.
+
+---
+
+## 4️⃣ Security
+- [ ] Firebase security rules enforce admin/member roles.
+- [ ] Only account admins can approve/reject join requests, deposits, and withdrawals.
+- [ ] No sensitive data stored in plain text locally.
+- [ ] Invite links expire and cannot be reused after joining.
+- [ ] All network requests use HTTPS.
+
+---
+
+## 5️⃣ Pre-Release Build
+- [ ] Remove all console logs and debug print statements.
+- [ ] Remove unused assets and dependencies.
+- [ ] Run `flutter build apk --release` without errors.
+- [ ] Install release APK on at least 2 different Android devices for final verification.
+
+---
+
+## ✅ Approval
+- [ ] All checks complete.
+- [ ] `BUGFIX.md` shows no open critical issues.
+- [ ] Ready for production release.
