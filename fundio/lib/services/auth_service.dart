@@ -91,6 +91,26 @@ class AuthService {
     }
   }
 
+  // Update profile with various fields
+  Future<void> updateProfile({
+    String? photoURL,
+    String? displayName,
+    String? phone,
+  }) async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      final updateData = <String, dynamic>{};
+      
+      if (photoURL != null) updateData['photoURL'] = photoURL;
+      if (displayName != null) updateData['username'] = displayName;
+      if (phone != null) updateData['phone'] = phone;
+      
+      if (updateData.isNotEmpty) {
+        await _firestore.collection('users').doc(user.uid).update(updateData);
+      }
+    }
+  }
+
   // Get user data
   Future<UserModel?> getUserData() async {
     final user = _auth.currentUser;

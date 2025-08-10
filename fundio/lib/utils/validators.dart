@@ -36,7 +36,36 @@ class Validators {
     }
     
     if (value.length < 3) {
-      return 'Username must be at least 3 characters';
+      return 'Username is required';
+    }
+    
+    return null;
+  }
+
+  // Name validation
+  static String? validateName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Name is required';
+    }
+    
+    if (value.length < 2) {
+      return 'Name must be at least 2 characters';
+    }
+    
+    return null;
+  }
+
+  // Phone validation
+  static String? validatePhone(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Phone number is required';
+    }
+    
+    // Basic phone validation - allows digits, spaces, dashes, parentheses, and plus sign
+    final phoneRegex = RegExp(r'^[\+]?[0-9\s\-\(\)]{10,}$');
+    
+    if (!phoneRegex.hasMatch(value)) {
+      return 'Please enter a valid phone number';
     }
     
     return null;
@@ -49,6 +78,11 @@ class Validators {
     }
     
     return null;
+  }
+
+  // Required field validation (alias for validateRequired)
+  static String? required(String? value, String fieldName) {
+    return validateRequired(value, fieldName);
   }
 
   // Amount validation
@@ -91,6 +125,50 @@ class Validators {
     
     if (value.isBefore(now)) {
       return 'Date must be in the future';
+    }
+    
+    return null;
+  }
+
+  // Compose multiple validators
+  static String? Function(String?) compose(List<String? Function(String?)> validators) {
+    return (String? value) {
+      for (final validator in validators) {
+        final result = validator(value);
+        if (result != null) {
+          return result;
+        }
+      }
+      return null;
+    };
+  }
+
+  // Number validation
+  static String? number(String? value, [String? errorMessage]) {
+    if (value == null || value.isEmpty) {
+      return errorMessage ?? 'Value is required';
+    }
+    
+    if (double.tryParse(value) == null) {
+      return errorMessage ?? 'Please enter a valid number';
+    }
+    
+    return null;
+  }
+
+  // Minimum value validation
+  static String? min(double minValue, String? value, [String? errorMessage]) {
+    if (value == null || value.isEmpty) {
+      return errorMessage ?? 'Value is required';
+    }
+    
+    final number = double.tryParse(value);
+    if (number == null) {
+      return errorMessage ?? 'Please enter a valid number';
+    }
+    
+    if (number < minValue) {
+      return errorMessage ?? 'Value must be at least $minValue';
     }
     
     return null;

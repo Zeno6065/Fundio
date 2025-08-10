@@ -6,6 +6,8 @@ class UserModel {
   final String email;
   final String defaultCurrency;
   final DateTime createdAt;
+  final String? photoURL;
+  final String? phone;
 
   UserModel({
     required this.id,
@@ -13,6 +15,8 @@ class UserModel {
     required this.email,
     required this.defaultCurrency,
     required this.createdAt,
+    this.photoURL,
+    this.phone,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json, String id) {
@@ -24,6 +28,8 @@ class UserModel {
       createdAt: json['createdAt'] != null
           ? (json['createdAt'] as Timestamp).toDate()
           : DateTime.now(),
+      photoURL: json['photoURL'],
+      phone: json['phone'],
     );
   }
 
@@ -33,6 +39,8 @@ class UserModel {
       'email': email,
       'defaultCurrency': defaultCurrency,
       'createdAt': createdAt,
+      'photoURL': photoURL,
+      'phone': phone,
     };
   }
 
@@ -40,6 +48,8 @@ class UserModel {
     String? username,
     String? email,
     String? defaultCurrency,
+    String? photoURL,
+    String? phone,
   }) {
     return UserModel(
       id: id,
@@ -47,6 +57,8 @@ class UserModel {
       email: email ?? this.email,
       defaultCurrency: defaultCurrency ?? this.defaultCurrency,
       createdAt: createdAt,
+      photoURL: photoURL ?? this.photoURL,
+      phone: phone ?? this.phone,
     );
   }
 }

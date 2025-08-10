@@ -153,6 +153,35 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
+  // Update profile with various fields
+  Future<void> updateProfile({
+    String? photoURL,
+    String? displayName,
+    String? phone,
+  }) async {
+    try {
+      await _authService.updateProfile(
+        photoURL: photoURL,
+        displayName: displayName,
+        phone: phone,
+      );
+      
+      // Update local user data
+      if (_user != null) {
+        _user = _user!.copyWith(
+          photoURL: photoURL,
+          username: displayName ?? _user!.username,
+          phone: phone ?? _user!.phone,
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      _errorMessage = e.toString();
+      notifyListeners();
+      rethrow;
+    }
+  }
+
   // Clear error
   void clearError() {
     _errorMessage = null;

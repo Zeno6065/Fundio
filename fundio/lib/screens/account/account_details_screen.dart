@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../constants/app_theme.dart';
-import '../../models/account.dart';
+import '../../models/account_model.dart';
 import '../../models/deposit.dart';
 import '../../providers/account_provider.dart';
 import '../../providers/deposit_provider.dart';
@@ -13,7 +13,7 @@ import 'create_deposit_screen.dart';
 import 'create_withdrawal_screen.dart';
 
 class AccountDetailsScreen extends StatefulWidget {
-  final Account account;
+  final AccountModel account;
 
   const AccountDetailsScreen({Key? key, required this.account}) : super(key: key);
 
@@ -24,6 +24,8 @@ class AccountDetailsScreen extends StatefulWidget {
 class _AccountDetailsScreenState extends State<AccountDetailsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool _isLoading = false;
+  double _progressPercentage = 0.0;
+  double _totalDeposits = 0.0;
 
   @override
   void initState() {
@@ -49,6 +51,23 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
       
       await depositProvider.loadDeposits(widget.account.id);
       await withdrawalProvider.loadWithdrawals(widget.account.id);
+      
+      // Load progress data
+      final totalDeposits = await depositProvider.getTotalApprovedDeposits(widget.account.id);
+      final currentAccount = Provider.of<AccountProvider>(context, listen: false)
+          .accounts.firstWhere(
+            (a) => a.id == widget.account.id,
+            orElse: () => widget.account,
+          );
+      
+      if (mounted) {
+        setState(() {
+          _totalDeposits = totalDeposits;
+          _progressPercentage = currentAccount.targetAmount > 0
+              ? (totalDeposits / currentAccount.targetAmount).clamp(0.0, 1.0)
+              : 0.0;
+        });
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -94,10 +113,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
       orElse: () => widget.account,
     );
 
-    // Calculate progress percentage
-    final double progressPercentage = currentAccount.goalAmount > 0
-        ? (depositProvider.getTotalApprovedDeposits(currentAccount.id) / currentAccount.goalAmount).clamp(0.0, 1.0)
-        : 0.0;
+    // Use the loaded progress data
 
     return Scaffold(
       appBar: AppBar(
@@ -138,12 +154,12 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
                             Row(
                               children: [
                                 Icon(
-                                  _getAccountTypeIcon(currentAccount.type),
+                                  _getAccountTypeIcon(currentAccount.withdrawalRules['type'] ?? 'savings'),
                                   color: AppTheme.primaryColor,
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  currentAccount.type,
+                                  currentAccount.withdrawalRules['type'] ?? 'savings',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -152,7 +168,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
                               ],
                             ),
                             Text(
-                              'Goal: ZMW ${currentAccount.goalAmount.toStringAsFixed(2)}',
+                              'Goal: ZMW ${currentAccount.targetAmount.toStringAsFixed(2)}',
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -170,12 +186,12 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text('Progress'),
-                                Text('${(progressPercentage * 100).toStringAsFixed(1)}%'),
+                                Text('${(_progressPercentage * 100).toStringAsFixed(1)}%'),
                               ],
                             ),
                             const SizedBox(height: 8),
                             LinearProgressIndicator(
-                              value: progressPercentage,
+                              value: _progressPercentage,
                               backgroundColor: Colors.grey[300],
                               valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
                               minHeight: 10,
@@ -197,7 +213,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> with Single
                                   style: TextStyle(color: Colors.grey),
                                 ),
                                 Text(
-                                  'ZMW ${depositProvider.getTotalApprovedDeposits(currentAccount.id).toStringAsFixed(2)}',
+                                  'ZMW ${_totalDeposits.toStringAsFixed(2)}',
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,

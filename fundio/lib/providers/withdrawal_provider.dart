@@ -141,6 +141,46 @@ class WithdrawalProvider extends ChangeNotifier {
     }
   }
 
+  // Get total completed withdrawals
+  Future<double> getTotalCompletedWithdrawals(String accountId) async {
+    try {
+      return await _withdrawalService.getTotalCompletedWithdrawals(accountId);
+    } catch (e) {
+      _errorMessage = e.toString();
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  // Load withdrawals for a specific account
+  Future<void> loadWithdrawals(String accountId) async {
+    await loadAccountWithdrawals(accountId);
+  }
+
+  // Get withdrawals by account ID
+  List<WithdrawalModel> getWithdrawalsByAccountId(String accountId) {
+    return _withdrawals.where((w) => w.accountId == accountId).toList();
+  }
+
+  // Create withdrawal (alias for createWithdrawalRequest)
+  Future<String> createWithdrawal({
+    required String accountId,
+    required double amount,
+    required String currency,
+    required String paymentMethod,
+    required String paymentDetails,
+    String? reason,
+  }) async {
+    return await createWithdrawalRequest(
+      accountId: accountId,
+      amount: amount,
+      currency: currency,
+      paymentMethod: paymentMethod,
+      paymentDetails: paymentDetails,
+      reason: reason,
+    );
+  }
+
   // Clear error
   void clearError() {
     _errorMessage = null;
