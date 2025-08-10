@@ -1,0 +1,36 @@
+# 🐞 Fundio Bug Tracker
+
+## How to Use
+1. When a bug is found, log it here immediately.
+2. Assign it a **Status** (`OPEN`, `IN PROGRESS`, `FIXED`).
+3. Include **Reproduction Steps**, **Expected Behavior**, and **Actual Behavior**.
+4. Move it to the **Resolved Bugs** section when fixed.
+
+---
+
+## 🔴 Open Bugs
+| ID  | Description | Status | Assigned To | Date Found |
+| --- | ----------- | ------ | ----------- | ---------- |
+| 001 | Missing `flutter_local_notifications` dependency causing build errors | OPEN |  | YYYY-MM-DD |
+| 002 | AppBar duplication across screens causing code bloat | OPEN |  | YYYY-MM-DD |
+
+---
+
+### 📝 Example Bug Entry
+**ID:** 003  
+**Description:** Theme toggle resets to default when app restarts.  
+**Status:** OPEN  
+**Steps to Reproduce:**
+1. Switch to dark mode.
+2. Close the app.
+3. Reopen the app.
+4. Theme resets to light mode.
+**Expected Behavior:** Theme should persist between sessions.  
+**Actual Behavior:** Theme reverts to default light mode.  
+
+---
+
+## ✅ Resolved Bugs
+| ID  | Description | Date Fixed | Notes |
+| --- | ----------- | ---------- | ----- |
+| 000 | Example resolved bug | YYYY-MM-DD | Details of fix |
