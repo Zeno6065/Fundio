@@ -1,0 +1,36 @@
+ Task :app:signingReport
+Variant: debug
+Config: debug
+Store: C:\Users\Nzila\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 59:5B:26:8F:4D:2F:C4:64:52:0D:28:DB:97:CF:A3:8D
+SHA1: 13:09:F0:64:E3:F0:D7:EF:7E:13:19:0F:09:5D:D2:1C:61:EB:E9:1E
+SHA-256: C5:AE:AA:3E:CF:F5:48:21:FA:F3:1E:F5:D5:78:79:EA:A0:68:7F:9A:22:2C:62:22:C0:CB:57:B6:40:78:59:6B
+Valid until: Monday, June 21, 2055
+----------
+Variant: release
+Config: debug
+Store: C:\Users\Nzila\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 59:5B:26:8F:4D:2F:C4:64:52:0D:28:DB:97:CF:A3:8D
+SHA1: 13:09:F0:64:E3:F0:D7:EF:7E:13:19:0F:09:5D:D2:1C:61:EB:E9:1E
+SHA-256: C5:AE:AA:3E:CF:F5:48:21:FA:F3:1E:F5:D5:78:79:EA:A0:68:7F:9A:22:2C:62:22:C0:CB:57:B6:40:78:59:6B
+Valid until: Monday, June 21, 2055
+----------
+Variant: profile
+Config: debug
+Store: C:\Users\Nzila\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 59:5B:26:8F:4D:2F:C4:64:52:0D:28:DB:97:CF:A3:8D
+SHA1: 13:09:F0:64:E3:F0:D7:EF:7E:13:19:0F:09:5D:D2:1C:61:EB:E9:1E
+SHA-256: C5:AE:AA:3E:CF:F5:48:21:FA:F3:1E:F5:D5:78:79:EA:A0:68:7F:9A:22:2C:62:22:C0:CB:57:B6:40:78:59:6B
+Valid until: Monday, June 21, 2055
+----------
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Nzila\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 59:5B:26:8F:4D:2F:C4:64:52:0D:28:DB:97:CF:A3:8D
+SHA1: 13:09:F0:64:E3:F0:D7:EF:7E:13:19:0F:09:5D:D2:1C:61:EB:E9:1E
+SHA-256: C5:AE:AA:3E:CF:F5:48:21:FA:F3:1E:F5:D5:78:79:EA:A0:68:7F:9A:22:2C:62:22:C0:CB:57:B6:40:78:59:6B
+Valid until: Monday, June 21, 2055

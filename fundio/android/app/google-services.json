@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "811759084083",
+    "project_id": "fundio-76780",
+    "storage_bucket": "fundio-76780.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:811759084083:android:8c216d7222392c68cbb946",
+        "android_client_info": {
+          "package_name": "com.example.fundio"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "811759084083-fsufoek9s7i8t9aa5sc1ptjlq2aeajmm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWk2kf8ufv1xjA1SE-IrbMv_kY9n6d-mo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "811759084083-fsufoek9s7i8t9aa5sc1ptjlq2aeajmm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
