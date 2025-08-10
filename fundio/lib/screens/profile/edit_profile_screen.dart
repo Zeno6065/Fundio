@@ -27,11 +27,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void _loadUserData() {
     final appProvider = Provider.of<AppProvider>(context, listen: false);
     final user = appProvider.user;
-    final userData = appProvider.userData;
 
     if (user != null) {
-      _nameController.text = userData?.name ?? user.displayName ?? '';
-      _phoneController.text = userData?.phone ?? '';
+      _nameController.text = user.username;
+      _phoneController.text = user.phone ?? '';
     }
   }
 

@@ -119,7 +119,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final appProvider = Provider.of<AppProvider>(context);
     final user = appProvider.user;
-    final userData = appProvider.userData;
 
     if (user == null) {
       return const Center(child: Text('User not logged in'));
@@ -187,7 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           
           // User name
           Text(
-            userData?.name ?? user.displayName ?? 'User',
+            user.username,
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,

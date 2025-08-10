@@ -43,12 +43,14 @@ class _CreateWithdrawalScreenState extends State<CreateWithdrawalScreen> {
     final depositProvider = Provider.of<DepositProvider>(context, listen: false);
     final withdrawalProvider = Provider.of<WithdrawalProvider>(context, listen: false);
     
-    final totalDeposits = depositProvider.getTotalApprovedDeposits(widget.account.id);
-    final totalWithdrawals = withdrawalProvider.getTotalCompletedWithdrawals(widget.account.id);
+    final totalDeposits = await depositProvider.getTotalApprovedDeposits(widget.account.id);
+    final totalWithdrawals = await withdrawalProvider.getTotalCompletedWithdrawals(widget.account.id);
     
-    setState(() {
-      _availableBalance = totalDeposits - totalWithdrawals;
-    });
+    if (mounted) {
+      setState(() {
+        _availableBalance = totalDeposits - totalWithdrawals;
+      });
+    }
   }
 
   @override
