@@ -1,0 +1,89 @@
+# ✅ Fundio Completion TODO
+
+## 🔍 Step 0: Reference Existing Documentation
+- [ ] Review all `.md` files in the `/md` folder.
+- [ ] Identify missing features, broken code, or incomplete sections.
+- [ ] Create a short internal checklist of missing elements before starting implementation.
+
+---
+
+## 🛠 Step 1: Dependency & Environment Fixes
+- [ ] Add `flutter_local_notifications`.
+- [ ] Add `shared_preferences` for theme persistence.
+- [ ] Update all dependencies to be compatible with Flutter 3.8.1+.
+- [ ] Run `flutter pub upgrade` and resolve all warnings/errors.
+- [ ] Verify app runs on Android emulator/device without crashing.
+
+---
+
+## 🔐 Step 2: Firebase Integration Validation
+- [ ] Confirm Firebase Auth flows work (login, register, password reset, Google Sign-In).
+- [ ] Verify Firestore collections and document structures match the schema in `/md/FIREBASE_SCHEMA.md`.
+- [ ] Implement and test Firebase Storage for proof-of-deposit uploads.
+- [ ] Create Cloud Functions for:
+  - [ ] Invite link validation & expiration.
+  - [ ] Approval notifications.
+- [ ] Review & update Firebase security rules to enforce admin/member permissions.
+
+---
+
+## 💰 Step 3: Core Feature Completion
+- **Deposit Accounts**
+  - [ ] Implement account creation with all required fields.
+  - [ ] Store currency choice and enforce conversions.
+  - [ ] Implement admin approval for join requests.
+- **Invites**
+  - [ ] Generate expiring, secure join links.
+  - [ ] Link → login/register → join request → admin approval.
+- **Deposits**
+  - [ ] Allow user deposits with proof upload.
+  - [ ] Store original & converted amounts.
+  - [ ] Admin approve/reject flow.
+- **Withdrawals**
+  - [ ] User submits withdrawal request with reason.
+  - [ ] Admin approve/reject.
+- **Profile**
+  - [ ] Update username.
+  - [ ] Change password.
+  - [ ] Set default currency.
+
+---
+
+## 🔔 Step 4: Notifications
+- [ ] Implement local notifications (flutter_local_notifications).
+- [ ] Implement push notifications (Firebase Cloud Messaging).
+- [ ] Trigger notifications for:
+  - [ ] Deposit approvals/rejections.
+  - [ ] Join request approvals/rejections.
+  - [ ] Withdrawal approvals/rejections.
+
+---
+
+## 🎨 Step 5: UI/UX Polish
+- [ ] Ensure theme toggle persists between sessions.
+- [ ] Refactor AppBar code for reusability.
+- [ ] Apply consistent design (spacing, fonts, colors).
+- [ ] Test on multiple Android screen sizes.
+
+---
+
+## 🧪 Step 6: Testing
+- **Unit Tests**
+  - [ ] Deposit flow logic.
+  - [ ] Withdrawal flow logic.
+  - [ ] Join/approval logic.
+- **Integration Tests**
+  - [ ] Firebase Auth flows.
+  - [ ] Theme persistence.
+- **Manual QA**
+  - [ ] Account creation + invite link.
+  - [ ] Currency switching.
+  - [ ] Proof-of-deposit uploads.
+  - [ ] Special-condition withdrawals.
+
+---
+
+## 🚀 Step 7: Finalization
+- [ ] Remove unused imports/code.
+- [ ] Run `flutter build apk --release` without errors.
+- [ ] Confirm Firebase rules protect sensitive data.
